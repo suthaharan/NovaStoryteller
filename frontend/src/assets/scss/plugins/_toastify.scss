@@ -1,0 +1,161 @@
+//
+// _toastify.scss
+// Custom styles for react-toastify (https://github.com/fkhadra/react-toastify)
+//
+
+// Override react-toastify styles to work with Bootstrap theme
+.Toastify__toast-container {
+    z-index: 9999;
+}
+
+.Toastify__toast {
+    font-family: inherit;
+    border-radius: var(--bs-border-radius);
+    box-shadow: var(--bs-box-shadow);
+    min-height: 48px;
+    padding: 12px 16px;
+}
+
+.Toastify__toast-body {
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: inherit;
+    display: flex;
+    align-items: center;
+}
+
+.Toastify__toast--success {
+    background-color: var(--bs-success);
+    color: #ffffff;
+}
+
+.Toastify__toast--error {
+    background-color: var(--bs-danger);
+    color: #ffffff;
+}
+
+.Toastify__toast--warning {
+    background-color: var(--bs-warning);
+    color: #000000;
+}
+
+.Toastify__toast--info {
+    background-color: var(--bs-info);
+    color: #ffffff;
+}
+
+.Toastify__toast--default {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+
+.Toastify__close-button {
+    color: inherit;
+    opacity: 0.7;
+    
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.Toastify__progress-bar {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.Toastify__progress-bar--success {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.Toastify__progress-bar--error {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.Toastify__progress-bar--warning {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.Toastify__progress-bar--info {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+// Legacy toastify-js styles (for backward compatibility)
+.toastify {
+    padding: 12px 20px;
+    color: #ffffff;
+    display: inline-block;
+    box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(77, 96, 232, 0.3);
+    background: $success;
+    position: fixed;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    max-width: calc(50% - 20px);
+    z-index: 2147483647;
+}
+
+.toastify.on {
+    opacity: 1;
+}
+
+.toast-close {
+    background: transparent;
+    border: 0;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1em;
+    opacity: 0.4;
+    padding: 0 5px;
+}
+
+.toastify-right {
+    right: 15px;
+}
+
+.toastify-left {
+    left: 15px;
+}
+
+.toastify-top {
+    top: -150px;
+}
+
+.toastify-bottom {
+    bottom: -150px;
+}
+
+.toastify-rounded {
+    border-radius: 25px;
+}
+
+.toastify-avatar {
+    width: 1.5em;
+    height: 1.5em;
+    margin: -7px 5px;
+    border-radius: 2px;
+}
+
+.toastify-center {
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    max-width: fit-content;
+    max-width: -moz-fit-content;
+}
+
+@media only screen and (max-width: 360px) {
+
+    .toastify-right,
+    .toastify-left {
+        margin-left: auto;
+        margin-right: auto;
+        left: 0;
+        right: 0;
+        max-width: fit-content;
+    }
+}

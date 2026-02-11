@@ -1,0 +1,17 @@
+asgiref==3.11.0
+Django==6.0
+django-cors-headers==4.9.0
+djangorestframework==3.16.1
+# mysqlclient==2.2.7  # Requires MySQL client libraries - install via: brew install mysql-client
+PyMySQL==1.1.0  # Pure Python MySQL client (no system dependencies)
+Pillow==11.0.0
+python-dotenv==1.2.1
+sqlparse==0.5.5
+whitenoise==6.11.0
+boto3>=1.34.0
+botocore>=1.34.0
+pydub==0.25.1  # Audio manipulation (optional - for MP3 conversion, falls back to WAV if not available)
+requests>=2.31.0  # For API testing scripts
+channels>=4.0.0  # WebSocket support for Django
+daphne>=4.0.0  # ASGI server for WebSocket support (required for voice feature)
+# channels-redis>=4.1.0  # Redis channel layer (optional, only needed for production with Redis)
