@@ -698,24 +698,4 @@ User-specific settings (age range, genre, language level, moral theme, story par
 
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
 
-```
-Copyright (C) 2024 Nova Storyteller
-
-This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 
-International License. To view a copy of this license, visit 
-http://creativecommons.org/licenses/by-nc/4.0/ or send a letter to 
-Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
-```
-
 See the [LICENSE](LICENSE) file for the full license text.
-
-### What this means:
-
-- ✅ **You can**: Share and adapt the code for non-commercial purposes
-- ✅ **You can**: Use, modify, and distribute this software (non-commercially)
-- ✅ **You must**: Give appropriate credit to the original author
-- ✅ **You must**: Include the original copyright notice and license
-- ❌ **You cannot**: Use this software for commercial purposes
-- ℹ️ **Note**: You do not need to license derivative works under the same license
-
-For more information about the CC BY-NC 4.0 license, visit: https://creativecommons.org/licenses/by-nc/4.0/
