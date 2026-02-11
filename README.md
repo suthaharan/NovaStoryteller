@@ -20,12 +20,15 @@ Nova Storyteller is a full-stack web application for AI-powered story generation
 - **Audio Regeneration**: Regenerate audio with different voices
 - **Audio Playback**: Built-in audio player with progress tracking and session management
 - **Session Logging**: Track listening sessions with start/end times, duration, and completion status
+- **Interactive Voice Storytelling**: Real-time voice interaction with stories using WebSocket connections
 
 ### 🖼️ Scene Generation
 - **Generate Scenes**: Automatically generate portrait images for story scenes based on transcript
 - **Smart Parsing**: Automatically detects Parts/Chapters in stories and generates one image per part
 - **Portrait Images**: Creates beautiful, child-friendly portrait illustrations (768x1024)
 - **Horizontal Gallery**: Displays generated scenes in a scrollable horizontal gallery below transcript
+- **Manual Scene Management**: Add, upload, and delete scene images manually for flexible story customization
+- **Scene Image Upload**: Upload custom images for specific story scenes or parts
 
 ### 📚 Playlists
 - **Create Playlists**: Organize stories into custom playlists
@@ -74,6 +77,8 @@ Nova Storyteller is a full-stack web application for AI-powered story generation
 
 #### Backend
 - **Django 6.0** with Django REST Framework (DRF) for robust API endpoints
+- **Django Channels** for WebSocket support (real-time voice interactions)
+- **Daphne** (ASGI server) for WebSocket and HTTP support
 - **MySQL 8+** (via PyMySQL) or SQLite (for development)
 - **Django ORM** for database operations
 - **Token-based Authentication** using DRF tokens
@@ -90,6 +95,7 @@ Nova Storyteller is a full-stack web application for AI-powered story generation
   - 20+ neural voices available
   - 16kHz PCM output converted to MP3 for storage
   - Voice selection and regeneration support
+- **AWS STS** → Temporary credential generation for secure frontend access to Bedrock
 
 #### File Storage
 - **Local Development**: Django media files in `media/` directory
@@ -262,6 +268,12 @@ USE_SQLITE=False
 
 # CORS Settings (for React dev server)
 CORS_ALLOWED_ORIGINS=http://localhost:3000
+
+# AWS Configuration (Required for AI features)
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
+AWS_REGION=us-east-1
+AWS_BEDROCK_REGION=us-east-1
 ```
 
 **Note**: The `.env` file is already in `.gitignore` and will not be committed to git.
@@ -358,7 +370,6 @@ cp -r frontend/dist/* static/build/
 python manage.py collectstatic --noinput
 ```
 
-> **Note:** See [Frontend Build Guide](./projectdocs/FRONTEND_BUILD.md) for detailed build instructions and troubleshooting.
 
 ## Running the Applications
 
@@ -411,7 +422,12 @@ In production mode, Django serves both the API and the React app on a single por
 python manage.py collectstatic --noinput
 ```
 
-3. **Run Django server**:
+3. **Run with Daphne (for WebSocket support)**:
+```bash
+daphne -b 0.0.0.0 -p 8000 backend.asgi:application
+```
+
+Or use standard Django server (WebSocket features will not work):
 ```bash
 python manage.py runserver
 ```
@@ -420,6 +436,7 @@ python manage.py runserver
 - Application: `http://localhost:8000`
 - API: `http://localhost:8000/api/`
 - Admin: `http://localhost:8000/admin/`
+- WebSocket: `ws://localhost:8000/ws/stories/{id}/voice/`
 
 ### Quick Start Script
 
@@ -472,7 +489,15 @@ The API is available at `/api/` with the following main endpoints:
 - `POST /api/stories/{id}/generate_audio/` - Generate audio narration
 - `GET /api/stories/{id}/revisions/` - Get story revision history
 - `POST /api/stories/{id}/generate_scenes/` - Generate scene images
+- `POST /api/stories/{id}/initialize_scenes/` - Initialize scene slots from story parts
+- `POST /api/stories/{id}/upload_scene_image/` - Upload image for a specific scene
+- `POST /api/stories/{id}/add_scene/` - Manually add a new scene
+- `DELETE /api/stories/{id}/delete_scene/{scene_id}/` - Delete a scene
 - `GET /api/stories/available_voices/` - Get available Polly voices
+- `POST /api/stories/{id}/start_voice_session/` - Start interactive voice session
+- `POST /api/stories/{id}/end_voice_session/` - End voice session
+- `GET /api/aws-credentials/` - Get temporary AWS credentials for frontend
+- `WS /ws/stories/{id}/voice/` - WebSocket endpoint for real-time voice interactions
 
 #### Story Sessions
 - `GET /api/story-sessions/` - List listening sessions (paginated)
@@ -538,17 +563,6 @@ python manage.py showmigrations
    - Ensure `static/build/` contains React build files
    - Check `STATIC_ROOT` and `STATIC_URL` in `settings.py`
 
-## Project Documentation
-
-All project documentation (markdown files) should be placed in the `projectdocs/` folder. This folder is excluded from git commits (see `.gitignore`).
-
-### Available Documentation
-
-- **[IMPLEMENTATION.md](projectdocs/IMPLEMENTATION.md)** - Complete implementation guide with Amazon Nova integration steps
-- **[QUICK_START.md](projectdocs/QUICK_START.md)** - Quick reference guide and setup checklist
-- **[APPLICATION_FLOW.md](projectdocs/APPLICATION_FLOW.md)** - Detailed application flow diagrams
-
-See the [projectdocs/README.md](projectdocs/README.md) for the complete documentation index.
 
 ## Dependencies
 
@@ -556,11 +570,14 @@ See the [projectdocs/README.md](projectdocs/README.md) for the complete document
 - Django 6.0
 - djangorestframework
 - django-cors-headers
-- mysqlclient (for MySQL) or sqlite3 (built-in, for SQLite)
+- channels (for WebSocket support)
+- daphne (ASGI server for WebSocket)
+- PyMySQL (for MySQL) or sqlite3 (built-in, for SQLite)
 - python-dotenv
 - whitenoise
 - Pillow
-- google-generativeai
+- boto3 (AWS SDK for Bedrock, Polly, STS)
+- pydub (audio processing)
 
 ### Node.js Dependencies
 - React 19+
@@ -595,6 +612,9 @@ See the [projectdocs/README.md](projectdocs/README.md) for the complete document
    - Audio regeneration with different voices
    - Audio playback with progress tracking
    - Session tracking (start/end time, duration, completion)
+   - Interactive voice storytelling via WebSocket
+   - Real-time voice input processing
+   - Conversation history tracking
 
 4. **Story Management**
    - Story listing with pagination
@@ -609,6 +629,9 @@ See the [projectdocs/README.md](projectdocs/README.md) for the complete document
    - AI-generated portrait images for each scene
    - Horizontal gallery display
    - Scene image storage and management
+   - Manual scene addition and deletion
+   - Custom scene image upload
+   - Scene initialization from story parts
 
 6. **Playlists**
    - Create and manage playlists
@@ -637,15 +660,19 @@ See the [projectdocs/README.md](projectdocs/README.md) for the complete document
    - Loading states and error handling
    - Audio player with progress bar
    - Pagination for all list views
+   - Voice recording component with visual feedback
+   - Conversation history display
+   - WebSocket client for real-time communication
 
 ### 📋 Current Project Status
 
 - **Backend**: Fully functional with all API endpoints
 - **Frontend**: Complete UI with all features implemented
 - **Database**: All models created and migrated
-- **AWS Integration**: Nova 2 Lite, Titan Embeddings, Polly, and Titan Image Generator integrated
+- **AWS Integration**: Nova 2 Lite, Titan Embeddings, Polly, Titan Image Generator, and STS integrated
 - **File Storage**: Organized year/month/story-id structure
 - **Authentication**: Token-based auth with role-based access
+- **WebSocket Support**: Django Channels with Daphne for real-time voice interactions
 - **Testing**: Backend API testing scripts available
 
 ## System Prompt for Nova (Core AI Logic)
@@ -669,33 +696,26 @@ User-specific settings (age range, genre, language level, moral theme, story par
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).
 
 ```
 Copyright (C) 2024 Nova Storyteller
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 
+International License. To view a copy of this license, visit 
+http://creativecommons.org/licenses/by-nc/4.0/ or send a letter to 
+Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 ```
 
 See the [LICENSE](LICENSE) file for the full license text.
 
 ### What this means:
 
-- ✅ **You can**: Use, modify, and distribute this software
-- ✅ **You can**: Use this software commercially
+- ✅ **You can**: Share and adapt the code for non-commercial purposes
+- ✅ **You can**: Use, modify, and distribute this software (non-commercially)
+- ✅ **You must**: Give appropriate credit to the original author
 - ✅ **You must**: Include the original copyright notice and license
-- ✅ **You must**: Disclose the source code when distributing
-- ✅ **You must**: License derivative works under the same GPL-3.0 license
+- ❌ **You cannot**: Use this software for commercial purposes
+- ℹ️ **Note**: You do not need to license derivative works under the same license
 
-For more information about the GPL-3.0 license, visit: https://www.gnu.org/licenses/gpl-3.0.html
+For more information about the CC BY-NC 4.0 license, visit: https://creativecommons.org/licenses/by-nc/4.0/
